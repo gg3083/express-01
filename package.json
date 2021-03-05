@@ -1,0 +1,31 @@
+{
+  "name": "whatsapp-lib",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node  ./bin/www",
+    "build": "rm -rf build && pkg . -t win --out-path build --public",
+    "postbuild": "cp -R ./node_modules/puppeteer/.local-chromium build/chromium"
+  },
+  "bin": "./bin/www",
+  "pkg": {},
+  "dependencies": {
+    "cookie-parser": "~1.4.4",
+    "debug": "~2.6.9",
+    "express": "~4.16.1",
+    "http-errors": "~1.6.3",
+    "jade": "~1.11.0",
+    "morgan": "~1.9.1",
+    "@pedroslopez/moduleraid": "^5.0.0",
+    "fluent-ffmpeg": "^2.1.2",
+    "jsqr": "^1.3.1",
+    "mime": "^2.4.5",
+    "pkg": "^4.4.9",
+    "puppeteer": "^5.4.1"
+  },
+  "devDependencies": {
+    "eslint": "^6.8.0",
+    "jsdoc": "^3.6.4",
+    "jsdoc-baseline": "^0.1.5"
+  }
+}
