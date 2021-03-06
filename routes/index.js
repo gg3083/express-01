@@ -63,7 +63,7 @@ router.get('/register/:phone', function (req, res, next) {
         res.send({phone: phone, isReg: r, sendState: '201'});
     }).catch(err=>{
         console.log(err)
-        res.send({msg: err, sendState: '500'});
+        res.send({msg: err, sendState: '501'});
     })
 });
 
@@ -76,7 +76,7 @@ router.get('/send/:phone/:message', function (req, res, next) {
         res.send({phone: phone, sendState: '202'});
     }).catch(err=>{
         console.log(err)
-        res.send({msg: err, sendState: '500'});
+        res.send({msg: err, sendState: '502'});
     });
 
 });
