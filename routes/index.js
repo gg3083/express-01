@@ -1,7 +1,10 @@
 var express = require('express');
 var fs = require('fs');
+const MessageMedia = require("../src/structures/MessageMedia");
 var router = express.Router();
 const {Client} = require('../index');
+var bodyParser = require("body-parser");
+var app            =         express();
 
 // const SESSION_FILE_PATH = '../session.json';
 // let sessionCfg;
@@ -9,10 +12,13 @@ const {Client} = require('../index');
 //     sessionCfg = require(SESSION_FILE_PATH);
 // }
 //
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
 
 const client = new Client({
     // puppeteer: {headless: false,      executablePath: 'C:/Program Files/Google/Chrome/Application/chrome.exe'},
-    puppeteer: {headless: false,    },
+    puppeteer: {headless: false,},
 
     // session: sessionCfg
 });
@@ -52,7 +58,6 @@ router.get('/', function (req, res, next) {
 });
 
 
-
 router.get('/register/:phone', function (req, res, next) {
     let phone = `${req.params.phone}`;
     console.log(phone)
@@ -61,7 +66,7 @@ router.get('/register/:phone', function (req, res, next) {
     client.isRegisteredUser(phone + '@c.us').then((r) => {
         console.log(`${phone} ${r === true ? '已' : '未'}注册`);
         res.send({phone: phone, isReg: r, sendState: '201'});
-    }).catch(err=>{
+    }).catch(err => {
         console.log(err)
         res.send({msg: err, sendState: '501'});
     })
@@ -74,10 +79,40 @@ router.get('/send/:phone/:message', function (req, res, next) {
     client.sendMessage(number, message, {}).then((r) => {
         console.log(`${phone} 已发送: ${message} !`);
         res.send({phone: phone, sendState: '202'});
-    }).catch(err=>{
+    }).catch(err => {
         console.log(err)
         res.send({msg: err, sendState: '502'});
     });
+
+});
+
+router.post('/sendImg', function (req, res, next) {
+    let phone = `${req.body.phone}`;
+    let message = `${req.body.message}`;
+    let base64 = `${req.body.baseData}`;
+
+    console.log('phone:', phone)
+    console.log('message:', message)
+    console.log('base64:', base64)
+    const number = phone.includes('@c.us') ? phone : `${phone}@c.us`;
+
+    client.sendMessage(number, message, {}).then((r) => {
+        console.log(`${phone} 已发送文字: ${message} !`);
+        const media = new MessageMedia('image/png', base64);
+
+        client.sendMessage(number, media, {}).then((r) => {
+            console.log(`${phone} 已发送图片: ${message} !`);
+            res.send({phone: phone, sendState: '202'});
+        }).catch(err => {
+            console.log(err)
+            res.send({msg: err, sendState: '502'});
+        });
+    }).catch(err => {
+        console.log(err)
+        res.send({msg: err, sendState: '502'});
+    });
+
+
 
 });
 
