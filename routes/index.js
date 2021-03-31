@@ -50,6 +50,41 @@ router.get('/', function (req, res, next) {
     client.on('ready', () => {
 
         console.log('Client is ready!');
+        let filePath =`${process.env.USERPROFILE}\\Documents\\douba_crawler\\db\\douba.db`
+        var sqlite3 = require('sqlite3').verbose()
+        var db = new sqlite3.Database(`${filePath}`)
+        var day  = new Date()
+        let month = day.getMonth()
+        if (month < 10){
+            month = `0${month+1}`
+        }
+        let days = day.getDate()
+        if (days < 10){
+            days = `0${days+1}`
+        }
+        day = `${day.getFullYear()}-${month}-${days}`
+        db.all(`select login_status from  whatsapp where current_day = '${day}'`, function(err,row){
+            if (row.length > 0){
+                if (row[0].login_status !== '1') {
+                    db.run(`update whatsapp set login_status = '1' where current_day = '${day}'`, function(err) {
+                        if (err){
+                            console.error(err);
+                        } else {
+                            console.log("update Data Success!");
+                        }
+                    });
+                }
+            }else {
+                db.run(`insert into whatsapp (current_day, login_status) values ('2021-03-31','1')`, function(err) {
+                    if (err){
+                        console.error(err);
+                    } else {
+                        console.log("Insert Data Success!");
+                    }
+                });
+            }
+        })
+
         res.send({state: '200'});
     });
 
@@ -72,9 +107,11 @@ router.get('/register/:phone', function (req, res, next) {
     })
 });
 
-router.get('/send/:phone/:message', function (req, res, next) {
-    let phone = `${req.params.phone}`;
-    let message = `${req.params.message}`;
+router.post('/send', function (req, res, next) {
+    let phone = `${req.body.phone}`;
+    let message = `${req.body.message}`;
+    console.log('phone:', phone)
+    console.log('message:', message)
     const number = phone.includes('@c.us') ? phone : `${phone}@c.us`;
     client.sendMessage(number, message, {}).then((r) => {
         console.log(`${phone} 已发送: ${message} !`);
@@ -136,6 +173,46 @@ router.get('/registerBatch/:phones', function (req, res, next) {
     res.send(resultData);
 });
 
+router.get('/db', function(req, res, next) {
+    // let filePath =`${process.env.USERPROFILE}\\Documents\\douba_crawler\\db\\douba.db`
+    // var sqlite3 = require('sqlite3').verbose()
+    // var db = new sqlite3.Database(`${filePath}`)
+    // var day  = new Date()
+    // let month = day.getMonth()
+    // if (month < 10){
+    //     month = `0${month+1}`
+    // }
+    // let days = day.getDate()
+    // if (days < 10){
+    //     days = `0${days+1}`
+    // }
+    // day = `${day.getFullYear()}-${month}-${days}`
+    // db.all(`select login_status from  whatsapp where current_day = '${day}'`, function(err,row){
+    //     console.log(row);
+    //     if (row.length > 0){
+    //         if (row[0].login_status !== '1') {
+    //             db.run(`update whatsapp set login_status = '2' where current_day = '${day}`, function(err) {
+    //                 if (err){
+    //                     console.error(err);
+    //                 } else {
+    //                     console.log("update Data Success!");
+    //                 }
+    //             });
+    //         }
+    //     }else {
+    //         db.run(`insert into whatsapp (current_day, login_status) values ('2021-03-31','1')`, function(err) {
+    //             if (err){
+    //                 console.error(err);
+    //             } else {
+    //                 console.log("Insert Data Success!");
+    //             }
+    //         });
+    //     }
+    // })
+
+
+    res.send(filePath);
+});
 
 module.exports = router;
 
