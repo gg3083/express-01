@@ -50,9 +50,7 @@ router.get('/', function (req, res, next) {
     client.on('ready', () => {
 
         console.log('Client is ready!');
-        let filePath =`${process.env.USERPROFILE}\\Documents\\douba_crawler\\db\\douba.db`
-        var sqlite3 = require('sqlite3').verbose()
-        var db = new sqlite3.Database(`${filePath}`)
+
         var day  = new Date()
         let month = day.getMonth()
         if (month < 10){
@@ -63,27 +61,18 @@ router.get('/', function (req, res, next) {
             days = `0${days+1}`
         }
         day = `${day.getFullYear()}-${month}-${days}`
-        db.all(`select login_status from  whatsapp where current_day = '${day}'`, function(err,row){
-            if (row.length > 0){
-                if (row[0].login_status !== '1') {
-                    db.run(`update whatsapp set login_status = '1' where current_day = '${day}'`, function(err) {
-                        if (err){
-                            console.error(err);
-                        } else {
-                            console.log("update Data Success!");
-                        }
-                    });
+        let filePath =`${process.env.USERPROFILE}\\Documents\\douba_crawler\\db\\${day}_whatsapp.json`
+        var data = fs.readFileSync(filePath)
+        console.log(data.toString())
+        let result = JSON.parse(data)
+        console.log(result.status, result.status != "1")
+        if (result && result.status != "1"){
+            fs.writeFile(filePath, '{"status": "1"}',  function(err) {
+                if (err) {
+                    return console.error(err);
                 }
-            }else {
-                db.run(`insert into whatsapp (current_day, login_status) values ('2021-03-31','1')`, function(err) {
-                    if (err){
-                        console.error(err);
-                    } else {
-                        console.log("Insert Data Success!");
-                    }
-                });
-            }
-        })
+            });
+        }
 
         res.send({state: '200'});
     });
@@ -174,44 +163,29 @@ router.get('/registerBatch/:phones', function (req, res, next) {
 });
 
 router.get('/db', function(req, res, next) {
-    // let filePath =`${process.env.USERPROFILE}\\Documents\\douba_crawler\\db\\douba.db`
-    // var sqlite3 = require('sqlite3').verbose()
-    // var db = new sqlite3.Database(`${filePath}`)
-    // var day  = new Date()
-    // let month = day.getMonth()
-    // if (month < 10){
-    //     month = `0${month+1}`
-    // }
-    // let days = day.getDate()
-    // if (days < 10){
-    //     days = `0${days+1}`
-    // }
-    // day = `${day.getFullYear()}-${month}-${days}`
-    // db.all(`select login_status from  whatsapp where current_day = '${day}'`, function(err,row){
-    //     console.log(row);
-    //     if (row.length > 0){
-    //         if (row[0].login_status !== '1') {
-    //             db.run(`update whatsapp set login_status = '2' where current_day = '${day}`, function(err) {
-    //                 if (err){
-    //                     console.error(err);
-    //                 } else {
-    //                     console.log("update Data Success!");
-    //                 }
-    //             });
-    //         }
-    //     }else {
-    //         db.run(`insert into whatsapp (current_day, login_status) values ('2021-03-31','1')`, function(err) {
-    //             if (err){
-    //                 console.error(err);
-    //             } else {
-    //                 console.log("Insert Data Success!");
-    //             }
-    //         });
-    //     }
-    // })
-
-
-    res.send(filePath);
+    var day  = new Date()
+    let month = day.getMonth()
+    if (month < 10){
+        month = `0${month+1}`
+    }
+    let days = day.getDate()
+    if (days < 10){
+        days = `0${days+1}`
+    }
+    day = `${day.getFullYear()}-${month}-${days}`
+    let filePath =`${process.env.USERPROFILE}\\Documents\\douba_crawler\\db\\${day}_whatsapp.json`
+    var data = fs.readFileSync(filePath)
+    console.log(data.toString())
+    let result = JSON.parse(data)
+    console.log(result.status, result.status != "1")
+    if (result && result.status != "1"){
+        fs.writeFile(filePath, '{"status": "1"}',  function(err) {
+            if (err) {
+                return console.error(err);
+            }
+        });
+    }
+    res.send(data);
 });
 
 module.exports = router;
