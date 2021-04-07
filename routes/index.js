@@ -52,15 +52,16 @@ router.get('/', function (req, res, next) {
         console.log('Client is ready!');
 
         var day  = new Date()
-        let month = day.getMonth()
+        let month = day.getMonth() + 1
         if (month < 10){
-            month = `0${month+1}`
+            month = `0${month}`
         }
         let days = day.getDate()
         if (days < 10){
-            days = `0${days+1}`
+            days = `0${days}`
         }
         day = `${day.getFullYear()}-${month}-${days}`
+        console.log(day)
         let filePath =`${process.env.USERPROFILE}\\Documents\\douba_crawler\\db\\${day}_whatsapp.json`
         var data = fs.readFileSync(filePath)
         console.log(data.toString())
@@ -173,6 +174,33 @@ router.get('/db', function(req, res, next) {
         days = `0${days+1}`
     }
     day = `${day.getFullYear()}-${month}-${days}`
+    let filePath =`${process.env.USERPROFILE}\\Documents\\douba_crawler\\db\\${day}_whatsapp.json`
+    var data = fs.readFileSync(filePath)
+    console.log(data.toString())
+    let result = JSON.parse(data)
+    console.log(result.status, result.status != "1")
+    if (result && result.status != "1"){
+        fs.writeFile(filePath, '{"status": "1"}',  function(err) {
+            if (err) {
+                return console.error(err);
+            }
+        });
+    }
+    res.send(data);
+});
+
+router.get('/test2', function(req, res, next) {
+    var day  = new Date()
+    let month = day.getMonth()
+    if (month < 10){
+        month = `0${month+1}`
+    }
+    let days = day.getDate()
+    if (days < 10){
+        days = `0${days}`
+    }
+    day = `${day.getFullYear()}-${month}-${days}`
+    console.log(day)
     let filePath =`${process.env.USERPROFILE}\\Documents\\douba_crawler\\db\\${day}_whatsapp.json`
     var data = fs.readFileSync(filePath)
     console.log(data.toString())
